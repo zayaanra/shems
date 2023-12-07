@@ -1,18 +1,54 @@
 <!DOCTYPE html>
+<html lang="en">
 
-<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
 
-    <body>
-        <form method="post">
-            <label>Username:</label>
-            <input type="text" placeholder="Enter Username" name="username" required>
-            <label>Password:</label>
-            <input type="password" placeholder="Enter Password" name="password" required>
-            <label>Confirm Password:</label>
-            <input type="password" placeholder="Confirm Password" name="confirmPassword" required>
-            <input type="text" placeholder="Enter Billing Address" name="Billing" required>
-            <button type="submit">Register</button>
-        </form>
-    </body>
-    
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body>
+    <form method="post">
+        <label>Username:</label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+
+        <label>Password:</label>
+        <input type="password" placeholder="Enter Password" name="password" required>
+
+        <label>Confirm Password:</label>
+        <input type="password" placeholder="Confirm Password" name="confirmPassword" required>
+
+        <label>Billing Address</label>
+        <input type="text" placeholder="Enter Billing Address" name="Billing" required>
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+
 </html>
