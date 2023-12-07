@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 
 import mysql.connector
 import db
@@ -8,22 +8,33 @@ app = Flask(__name__, template_folder='../frontend/templates')
 ctx = mysql.connector.connect(host="localhost", user="root", passwd="password", database="shems")
 cursor = ctx.cursor(prepared=True)
 
-# TODO - Set up authentication
-# TODO - Set up cookies to stay logged in
-# TODO - Set up DB
+# TODO - insert service location
+# TODO - insert smart device
 
-@app.route("/")
+# TODO - this route should only be accessible to those with an auth token (logged in)
+@app.route("/home")
 def home():
-    return "Hello World!"
+    if request.method == "POST":
+        form_name = request.form['form_name']
+        if form_name == 'new_service_location':
+            # TODO - insert new service location
+            pass
+        elif form_name == 'new_smart_device':
+            # TODO - insert new smart device
+            pass
+        elif form_name == 'enrolled_device':
+            # TODO - insert new enrolled device
+            pass
+    else:
+        # TODO - fill in with customer data
+        return render_template("home.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        # TODO - Process login information (authenticate)
         success = db.authenticate(cursor, request.form)
         if success:
-            # TODO - Redirect to customer's homepage and fill in with customer data
-            return "Login successful"
+            return redirect("/home", code=302)
         else:
             return "Login failed"
     else:

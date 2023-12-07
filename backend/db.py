@@ -1,5 +1,6 @@
 import bcrypt
 
+
 def insertCustomer(ctx, cursor, data):
     username = data['username']
     password = data['password']
