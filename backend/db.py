@@ -1,3 +1,5 @@
+from datetime import date, datetime
+
 import bcrypt
 
 
@@ -49,6 +51,40 @@ def authenticate(cursor, data):
     return result
 
 
+def insertNewServiceLocation(ctx, cursor, data):
+    # Fetch all data submitted
+    addr = data['addr']
+    unit = data['unit']
+    square_ft = float(data['square_ft'])
+    num_bedrooms = int(data['num_bedrooms'])
+    num_occupants = int(data['num_occupants'])
+    date_owned = datetime.strptime(data['date_owned'], '%Y-%m-%d').date()
+    zipcode = data['zipcode']
+
+    # insert into DB and commit
+    query = ("INSERT INTO ServiceLocations (addr, unit, square_ft, bedrooms, occupants, date_owned, zipcode) VALUES (%s, %s, %s, %s, %s, %s, %s)")
+    cursor.execute(query, (addr, unit, square_ft, num_bedrooms, num_occupants, date_owned.strftime('%Y-%m-%d'), zipcode))
+
+    ctx.commit()
+
+def insertNewSmartDevice(ctx, cursor, data):
+    # Fetch all data submitted
+    dv_type = data["type"]
+    model = data["models"]
+
+    # Get the model ID for the submitted model
+    query = ("SELECT mid FROM Models WHERE name = %s")
+    cursor.execute(query, (model,))
+    result = cursor.fetchone()
     
+
+    # insert into DB and commit
+    query = ("INSERT INTO Devices (type, mid) VALUES (%s, %s)")
+    cursor.execute(query, (dv_type, result[0]))
+
+    ctx.commit()
+
+def enrollDevice(ctx, cursor, data, user):
+    pass
 
 # TODO - is supporting concurrent access to DB necessary?
