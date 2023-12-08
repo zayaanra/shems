@@ -38,7 +38,7 @@
       </head>
 
       <body>
-        <form name="new_service_location" method="post">
+        <form action="/new-service-location" name="new_service_location" method="post">
             <h1>Register new service location</h1>
             <label>Service Location</label>
             <input type="text" placeholder="Enter address" name="addr">
@@ -46,13 +46,13 @@
             <input type="text" placeholder="Enter size (in square ft)" name="square_ft">
             <input type="text" placeholder="Enter number of bedrooms" name="num_bedrooms">
             <input type="text" placeholder="Enter number of occupants" name="num_occupants">
-            <input type="text" placeholder="Enter date this service location was owned" name="date_owned">
+            <input type="date" placeholder="Enter date this service location was owned" name="date_owned">
             <input type="text" placeholder="Enter zip code of this service location" name="zipcode">
             <button type="submit">Submit</button>
         </form>
 
         
-        <form name="new_smart_device"method="post">
+        <form action="/new-smart-device" name="new_smart_device" method="post">
             <h1>Register new smart device</h1>
             <label>Smart Device</label>
             <input type="text" placeholder="Enter Type (AC System/Lights/Refrigerator/Dryer)" name="type">
@@ -65,7 +65,7 @@
             <button type="submit">Submit</button>
         </form>
 
-        <form name="enroll_device"method="post">
+        <form action="/enroll-device" name="enroll_device" method="post">
             <h1>Enroll Device</h1>
 
             <label>Service Location</label>
