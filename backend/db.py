@@ -51,7 +51,7 @@ def authenticate(cursor, data):
     return result
 
 
-def insertNewServiceLocation(ctx, cursor, data):
+def insertNewServiceLocation(ctx, cursor, data, user):
     # Fetch all data submitted
     addr = data['addr']
     unit = data['unit']
@@ -62,8 +62,24 @@ def insertNewServiceLocation(ctx, cursor, data):
     zipcode = data['zipcode']
 
     # insert into DB and commit
-    query = ("INSERT INTO ServiceLocations (addr, unit, square_ft, bedrooms, occupants, date_owned, zipcode) VALUES (%s, %s, %s, %s, %s, %s, %s)")
-    cursor.execute(query, (addr, unit, square_ft, num_bedrooms, num_occupants, date_owned.strftime('%Y-%m-%d'), zipcode))
+    q1 = ("INSERT INTO ServiceLocations (addr, unit, square_ft, bedrooms, occupants, date_owned, zipcode) VALUES (%s, %s, %s, %s, %s, %s, %s)")
+    cursor.execute(q1, (addr, unit, square_ft, num_bedrooms, num_occupants, date_owned.strftime('%Y-%m-%d'), zipcode))
+
+    # Find the user this service location is being registered under
+    q2 = ("SELECT cid FROM Customers WHERE name = %s")
+    cursor.execute(q2, (user,))
+    r1 = cursor.fetchone()
+    cid = r1[0]
+
+    # Find the sid of the newly registered service location
+    q3 = ("SELECT sid FROM ServiceLocations WHERE addr = %s AND unit = %s")
+    cursor.execute(q3, (addr, unit))
+    r2 = cursor.fetchone()
+    sid = r2[0]
+
+    # Insert into OwnedLocations
+    q4 = ("INSERT INTO OwnedLocations (cid, sid) VALUES (%s, %s)")
+    cursor.execute(q4, (cid, sid))
 
     ctx.commit()
 
@@ -85,6 +101,27 @@ def insertNewSmartDevice(ctx, cursor, data):
     ctx.commit()
 
 def enrollDevice(ctx, cursor, data, user):
-    pass
+    # Fetch all data submitted
+    dv_type = data["type"]
+    addr = data["addr"]
+    unit = data["unit"]
+
+    # Find the device ID for this type of device
+    q1 = ("SELECT did FROM Devices WHERE type = %s")
+    cursor.execute(q1, (dv_type,))
+    r1 = cursor.fetchone()
+    did = r1[0]
+
+    # Find the service location and user for which this (addr, unit) belongs to
+    q2 = ("SELECT sid, cid FROM Customers NATURAL JOIN ServiceLocations WHERE name = %s AND addr = %s AND unit = %s")
+    cursor.execute(q2, (user, addr, unit))
+    r2 = cursor.fetchone()
+    sid, cid = r2[0], r2[1]
+
+    # Insert the newly enrolled device into the DB
+    q3 = ("INSERT INTO EnrolledDevices (did, sid, cid) VALUES (%s, %s, %s)")
+    cursor.execute(q3, (did, sid, cid))
+    
+    ctx.commit()
 
 # TODO - is supporting concurrent access to DB necessary?

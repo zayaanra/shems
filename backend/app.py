@@ -9,16 +9,16 @@ app = Flask(__name__, template_folder='../frontend/templates')
 app.config['JWT_SECRET_KEY'] = 'secret'
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 
+# NOTE - This is unsafe. Only do this for development, not production.
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+
 jwt = JWTManager(app)
 
 ctx = mysql.connector.connect(host="localhost", user="root", passwd="password", database="shems")
 cursor = ctx.cursor(prepared=True)
 
-# TODO - insert service location
-# TODO - insert smart device
 # TODO - escape html
 
-# TODO - this route should only be accessible to those with an auth token (logged in)
 @app.route("/home", methods=["GET"])
 @jwt_required()
 def home():
@@ -61,8 +61,9 @@ def register():
         return render_template("register.html")
 
 @app.route("/new-service-location", methods=["POST"])
+@jwt_required()
 def new_service_location():
-    db.insertNewServiceLocation(ctx, cursor, request.form)
+    db.insertNewServiceLocation(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
 
 @app.route("/new-smart-device", methods=["POST"])
@@ -75,7 +76,7 @@ def new_smart_device():
 def enroll_device():
     # TODO - fix csrf token
     db.enrollDevice(ctx, cursor, request.form, get_jwt_identity())
-
+    return redirect("/home", code=302)
 
 
 
