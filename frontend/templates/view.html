@@ -45,7 +45,7 @@
 
     <body>
         <form name="energy_consumption_time" method="post">
-            <label>Energy Consumption per date</label>
+            <label>Energy Consumption over time</label>
             <input type="date" name="start_date" required>
             <input type="date" name="finish_date" required>
             <button type="submit">View</button>
@@ -64,10 +64,12 @@
             <input type="hidden" name="form_name" value="energy_consumption_location">
           </form>
 
-          <form name="avg_energy_consumption_sqr_ft" method="post">
-            <label>Avg. Energy Consumption of locations with similar square footage</label>
+          <form name="energy_prices_zipcode" method="post">
+            <label>Energy Pricing by zip code over time period</label>
+            <input type="date" name="start_date" required>
+            <input type="date" name="finish_date" required>
             <button type="submit">View</button>
-            <input type="hidden" name="form_name" value="avg_energy_consumption_sqr_ft">
+            <input type="hidden" name="form_name" value="energy_prices_zipcode">
           </form>
 
 

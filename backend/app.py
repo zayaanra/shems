@@ -34,7 +34,7 @@ def view():
         if form_name == 'energy_consumption_time':
             # Now, with the fetched data for this view, we'll create a plot (bar graph) to represent the user data.
             # Return the HTML template with the plot inserted into it.
-            x, y = db.fetchEnergyConsumptionByMonth(cursor, request.form, name)
+            x, y = db.fetchEnergyConsumptionByTime(cursor, request.form, name)
             df = pd.DataFrame({'Date': x, 'Energy Consumption': y})
             fig = px.bar(df, x='Date', y='Energy Consumption', orientation='v', title='Energy Consumption by date')
             fig.update_yaxes(range=[0, 100])
@@ -48,9 +48,21 @@ def view():
             fig = px.pie(df, names='Device Type', values='Percentage', title='Energy Consumption by device type as percentage of total energy consumption')
             plot_content = fig.to_html(full_html=False)
             return render_template("view.html", plot_content=plot_content)
-        elif form_name == 'avg_energy_consumption_sqr_ft':
-            # TODO
-            return render_template("view.html")
+        elif form_name == 'energy_prices_zipcode':
+            # With the fetched data, we'll create a line graph to represent the user data.
+            # Each line represents the zip code of the customer's owned service locations and it's pricing over a selected time period.
+            # Return the HTML template with the pie chart inserted into it.
+            data = db.fetchEnergyPricingByZipcode(cursor, request.form, name)
+            df_list = []
+            for z, pts in data.items():
+                line = pd.DataFrame(pts, columns=['Date', 'Energy Price'])
+                line['Zip Code'] = z
+                df_list.append(line)
+            df = pd.concat(df_list, ignore_index=True)
+            fig = px.line(df, x='Date', y='Energy Price', color='Zip Code', title='Energy Pricing by zip code over time', markers=True)
+            fig.update_yaxes(range=[0, 100])
+            plot_content = fig.to_html(full_html=False)
+            return render_template("view.html", plot_content=plot_content)
         elif form_name == 'energy_consumption_location':
             # With the fetched data, create a bar graph to represent the user data.
             # Return the HTML template with the bar graph inserted into it.

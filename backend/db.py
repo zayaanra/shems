@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 
 import bcrypt
 import pandas as pd
+import collections
 
 def insertCustomer(ctx, cursor, data):
     username = data['username']
@@ -124,7 +125,7 @@ def enrollDevice(ctx, cursor, data, user):
     
     ctx.commit()
 
-def fetchEnergyConsumptionByMonth(cursor, data, user):
+def fetchEnergyConsumptionByTime(cursor, data, user):
     # Fetch start/finish dates for user selected time period
     start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
     finish_date = datetime.strptime(data['finish_date'], '%Y-%m-%d').date()
@@ -195,10 +196,25 @@ def fetchEnergyConsumptionByServiceLocation(cursor, user):
     
     return x, y
 
-def fetchEnergyConumptionBySimiliarSqrFt(cursor, data, user):
+def fetchEnergyPricingByZipcode(cursor, data, user):
     # Fetch start/finish dates for user selected time period
     start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
     finish_date = datetime.strptime(data['finish_date'], '%Y-%m-%d').date()
+
+    query = ("SELECT DISTINCT zipcode, price, timestamp\
+             FROM Customers NATURAL JOIN OwnedLocations NATURAL JOIN ServiceLocations NATURAL JOIN EnergyPrices\
+             WHERE name = %s AND DATE(timestamp) BETWEEN %s AND %s")
+    cursor.execute(query, (user, start_date, finish_date))
+    result = cursor.fetchall()
+
+    # Set up data for plotting
+    data = collections.defaultdict(list)
+    for row in result:
+        zipcode, price, date = row
+        data[zipcode].append((date, price))
+
+    return data
+    
 
     
 
