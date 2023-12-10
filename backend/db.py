@@ -1,7 +1,7 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import bcrypt
-
+import pandas as pd
 
 def insertCustomer(ctx, cursor, data):
     username = data['username']
@@ -123,5 +123,32 @@ def enrollDevice(ctx, cursor, data, user):
     cursor.execute(q3, (did, sid, cid))
     
     ctx.commit()
+
+def fetchEnergyConsumptionByMonth(cursor, data, user):
+    # Fetch start/finish dates for user selected time period
+    start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+    finish_date = datetime.strptime(data['finish_date'], '%Y-%m-%d').date()
+    
+    # Get energy consumption data for time period by month
+    query = ("SELECT DATE(timestamp), SUM(value) AS energy_consumption \
+             FROM Customers NATURAL JOIN EnrolledDevices NATURAL JOIN Events \
+             WHERE label = 'energy use' AND DATE(timestamp) BETWEEN %s AND %s AND name = %s\
+             GROUP BY DATE(timestamp)\
+             ")
+    cursor.execute(query, (start_date, finish_date, user))
+    result = cursor.fetchall()
+
+    x = pd.date_range(start_date, finish_date-timedelta(days=1),freq='d')
+    y = [0] * len(x)
+    for row in result:
+        date, value = row
+        date = pd.Timestamp(date)
+        try:
+            idx = x.get_loc(date)
+            y[idx] = value
+        except KeyError as e:
+            print(f"KeyError: {e}, Date: {date}")
+
+    return x, y
 
 # TODO - is supporting concurrent access to DB necessary?

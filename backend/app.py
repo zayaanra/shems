@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, flash, jsonify, url
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, jwt_required, get_jwt_identity
 
 import mysql.connector
+import plotly_express as px
+import pandas as pd
+
 
 import db
 
@@ -19,11 +22,38 @@ cursor = ctx.cursor(prepared=True)
 
 # TODO - escape html
 
+@app.route("/view", methods=["GET", "POST"])
+@jwt_required()
+def view():
+    # TODO - fill in with customer data
+    name = get_jwt_identity()
+    # If POST request, reply with the appropiate plot.
+    if request.method == "POST":
+        form_name = request.form['form_name']
+        if form_name == 'energy_consumption_time':
+            # Now, with the fetched data for this view, we'll create a plot (bar graph) to represent the user data.
+            # Return the HTML template with the plot inserted into it.
+            x, y = db.fetchEnergyConsumptionByMonth(cursor, request.form, name)
+            df = pd.DataFrame({'Date': x, 'Energy Consumption': y})
+            fig = px.bar(df, x='Date', y='Energy Consumption', orientation='v', title='Energy Consumption by date')
+            fig.update_yaxes(range=[0, 100])
+            plot_content = fig.to_html(full_html=False)
+            return render_template("view.html", plot_content=plot_content)
+        elif form_name == 'energy_consumption_device':
+            # TODO
+            return render_template("view.html")
+        elif form_name == 'avg_energy_consumption_sqr_ft':
+            # TODO
+            return render_template("view.html")
+        elif form_name == 'energy_consumption_location':
+            # TODO
+            return render_template("view.html")
+
+    return render_template("view.html")
+
 @app.route("/home", methods=["GET"])
 @jwt_required()
 def home():
-    # TODO - fill in with customer data
-    name = get_jwt_identity()
     return render_template("home.html")
 
 @app.route("/login", methods=["GET", "POST"])
