@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager, create_access_token, create_refresh_t
 import mysql.connector
 import plotly_express as px
 import pandas as pd
+import logging
 
 
 import db
@@ -40,14 +41,25 @@ def view():
             plot_content = fig.to_html(full_html=False)
             return render_template("view.html", plot_content=plot_content)
         elif form_name == 'energy_consumption_device':
-            # TODO
-            return render_template("view.html")
+            # With the fetched data, we'll create a pie chart to represent the user data.
+            # Return the HTML template with the pie chart inserted into it.
+            data = db.fetchEnergyConsumptionByDevice(cursor, name)
+            df = pd.DataFrame(data, columns=['Device Type', 'Percentage'])
+            fig = px.pie(df, names='Device Type', values='Percentage', title='Energy Consumption by device type as percentage of total energy consumption')
+            plot_content = fig.to_html(full_html=False)
+            return render_template("view.html", plot_content=plot_content)
         elif form_name == 'avg_energy_consumption_sqr_ft':
             # TODO
             return render_template("view.html")
         elif form_name == 'energy_consumption_location':
-            # TODO
-            return render_template("view.html")
+            # With the fetched data, create a bar graph to represent the user data.
+            # Return the HTML template with the bar graph inserted into it.
+            x, y = db.fetchEnergyConsumptionByServiceLocation(cursor, name)
+            df = pd.DataFrame({'Service Location': x, 'Energy Consumption': y})
+            fig = px.bar(df, x='Service Location', y='Energy Consumption', orientation='v', title='Energy Consumption by service location')
+            fig.update_yaxes(range=[0, 100])
+            plot_content = fig.to_html(full_html=False)
+            return render_template("view.html", plot_content=plot_content)
 
     return render_template("view.html")
 

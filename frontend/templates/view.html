@@ -58,17 +58,19 @@
             <input type="hidden" name="form_name" value="energy_consumption_device">
           </form>
 
+          <form name="energy_consumption_location" method="post">
+            <label>Energy Consumption per service location</label>
+            <button type="submit">View</button>
+            <input type="hidden" name="form_name" value="energy_consumption_location">
+          </form>
+
           <form name="avg_energy_consumption_sqr_ft" method="post">
             <label>Avg. Energy Consumption of locations with similar square footage</label>
             <button type="submit">View</button>
             <input type="hidden" name="form_name" value="avg_energy_consumption_sqr_ft">
           </form>
 
-          <form name="energy_consumption_location" method="post">
-            <label>Energy Consumption per service location</label>
-            <button type="submit">View</button>
-            <input type="hidden" name="form_name" value="energy_consumption_location">
-          </form>
+
 
           <div class="plot">
             {{ plot_content|default("")|safe }}

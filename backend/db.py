@@ -138,6 +138,7 @@ def fetchEnergyConsumptionByMonth(cursor, data, user):
     cursor.execute(query, (start_date, finish_date, user))
     result = cursor.fetchall()
 
+    # Set up X and Y data for axes
     x = pd.date_range(start_date, finish_date-timedelta(days=1),freq='d')
     y = [0] * len(x)
     for row in result:
@@ -150,5 +151,56 @@ def fetchEnergyConsumptionByMonth(cursor, data, user):
             print(f"KeyError: {e}, Date: {date}")
 
     return x, y
+
+def fetchEnergyConsumptionByDevice(cursor, user):
+    # Get energy consumption data by device
+    query = ("SELECT did, type, SUM(value) AS energy_consumption \
+             FROM Customers NATURAL JOIN EnrolledDevices NATURAL JOIN Devices NATURAL JOIN Events \
+             WHERE label = 'energy use' AND name = %s\
+             GROUP BY did, type")
+    cursor.execute(query, (user,))
+    result = cursor.fetchall()
+
+    # Go through our result set and compute the energy consumption for each device as a percentage of the total energy consumption.
+    # We will view this statistic as a pie chart on the frontend.
+    device_to_ec = {}
+    total_energy_consumption = 0
+    for row in result:
+        dv_type, ec = row[1], row[2]
+        device_to_ec[dv_type] = ec
+        total_energy_consumption += ec
+    
+    data = []
+    for dv_type, ec in device_to_ec.items():
+        data.append((dv_type, ec/total_energy_consumption))
+
+    return data
+
+def fetchEnergyConsumptionByServiceLocation(cursor, user):
+    # Get energy consumption data by service location
+    query = ("SELECT addr, SUM(value) AS energy_consumption\
+             FROM Customers NATURAL JOIN EnrolledDevices NATURAL JOIN ServiceLocations NATURAL JOIN OwnedLocations NATURAL JOIN Events\
+             WHERE label = 'energy use' AND name = %s\
+             GROUP BY addr")
+    cursor.execute(query, (user,))
+    result = cursor.fetchall()
+
+    # Set up X and Y data for axes
+    x = []
+    y = []
+    for row in result:
+        addr, ec = row[0], row[1]
+        x.append(addr)
+        y.append(ec)
+    
+    return x, y
+
+def fetchEnergyConumptionBySimiliarSqrFt(cursor, data, user):
+    # Fetch start/finish dates for user selected time period
+    start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+    finish_date = datetime.strptime(data['finish_date'], '%Y-%m-%d').date()
+
+    
+
 
 # TODO - is supporting concurrent access to DB necessary?
