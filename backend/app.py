@@ -6,27 +6,31 @@ import plotly_express as px
 import pandas as pd
 import logging
 
-
 import db
 
 app = Flask(__name__, template_folder='../frontend/templates')
 app.config['JWT_SECRET_KEY'] = 'secret'
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 
-# NOTE - This is unsafe. Only do this for development, not production.
+# TODO - fix csrf token
+# NOTE - Unsafe CSRF.
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+# app.config['JWT_CSRF_CHECK_FORM'] = True
+# app.config['JWT_CSRF_IN_COOKIES'] = True
+
+# TODO - Since models are prestored, can devices also be prestored? For example, can we just have fixed devices (AC system, lights, refr., dryer)?
+# If user wants to add a device, they enroll it using prestored devices. That means we don't need "Register new smart device" section.
+# TODO - Since events are assumed to be sent, after a customer enrolls a new device, do we as a programmer insert pricing changes/events for that device?
+# Is this what we will do in our demo?
 
 jwt = JWTManager(app)
 
 ctx = mysql.connector.connect(host="localhost", user="root", passwd="password", database="shems")
 cursor = ctx.cursor(prepared=True)
 
-# TODO - escape html
-
 @app.route("/view", methods=["GET", "POST"])
 @jwt_required()
 def view():
-    # TODO - fill in with customer data
     name = get_jwt_identity()
     # If POST request, reply with the appropiate plot.
     if request.method == "POST":
@@ -117,22 +121,22 @@ def register():
 @app.route("/new-service-location", methods=["POST"])
 @jwt_required()
 def new_service_location():
+    # Insert new service location
     db.insertNewServiceLocation(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
 
 @app.route("/new-smart-device", methods=["POST"])
 def new_smart_device():
+    # Insert new smart device
     db.insertNewSmartDevice(ctx, cursor, request.form)
     return redirect("/home", code=302)
 
 @app.route("/enroll-device", methods=["POST"])
 @jwt_required()
 def enroll_device():
-    # TODO - fix csrf token
+    # Enroll a new device
     db.enrollDevice(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)

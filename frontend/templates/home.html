@@ -55,7 +55,12 @@
         <form action="/new-smart-device" name="new_smart_device" method="post">
             <h1>Register new smart device</h1>
             <label>Smart Device</label>
-            <input type="text" placeholder="Enter Type (AC System/Lights/Refrigerator/Dryer)" name="type">
+            <select name="types">
+              <option value="AC System">AC System</option>
+              <option value="Lights">Lights</option>
+              <option value="Refrigerator">Refrigerator</option>
+              <option value="Dryer">Dryer</option>
+            </select>
             <select name="models">
                 <option value="GE Cafe 400">GE Cafe 400 (Refrigerator)</option>
                 <option value="Samsung QB800">Samsung QB800 (Dryer)</option>
@@ -73,7 +78,12 @@
             <input type="text" placeholder="Enter unit" name="unit">
     
             <label>Smart Device</label>
-            <input type="text" placeholder="Enter Type (AC System/Lights/Refrigerator/Dryer)" name="type">
+            <select name="types">
+              <option value="AC System">AC System</option>
+              <option value="Lights">Lights</option>
+              <option value="Refrigerator">Refrigerator</option>
+              <option value="Dryer">Dryer</option>
+            </select>
 
             <button type="submit">Enroll</button>
         </form>
