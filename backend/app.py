@@ -25,6 +25,14 @@ app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 jwt = JWTManager(app)
 
+# TODO - Test remote config. on campus
+
+# NOTE - Use this when testing remotely!
+# ctx = mysql.connector.connect(host="192.168.1.159", user="redbrickz", passwd="password", database="shems")
+
+# NOTE - Use this when testing locally!
+# ctx = mysql.connector.connect(host="localhost", user="root", passwd="password", database="shems")
+
 ctx = mysql.connector.connect(host="localhost", user="root", passwd="password", database="shems")
 cursor = ctx.cursor(prepared=True)
 
