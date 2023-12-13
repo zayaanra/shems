@@ -18,10 +18,7 @@ app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 # app.config['JWT_CSRF_CHECK_FORM'] = True
 # app.config['JWT_CSRF_IN_COOKIES'] = True
 
-# TODO - Since models are prestored, can devices also be prestored? For example, can we just have fixed devices (AC system, lights, refr., dryer)?
-# If user wants to add a device, they enroll it using prestored devices. That means we don't need "Register new smart device" section.
-# TODO - Since events are assumed to be sent, after a customer enrolls a new device, do we as a programmer insert pricing changes/events for that device?
-# Is this what we will do in our demo?
+# TODO - What's the point of using VIEWS in sql if the view is dependent on the customer anyways? Wouldn't selecting be easier?
 
 jwt = JWTManager(app)
 
@@ -125,11 +122,18 @@ def new_service_location():
     db.insertNewServiceLocation(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
 
-@app.route("/new-smart-device", methods=["POST"])
-def new_smart_device():
-    # Insert new smart device
-    db.insertNewSmartDevice(ctx, cursor, request.form)
+@app.route("/remove-service-location", methods=["POST"])
+@jwt_required()
+def remove_service_location():
+    # Remove service location
+    db.removeServiceLocation(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
+
+@app.route("/view-service-locations", methods=["POST"])
+@jwt_required()
+def view_service_locations():
+    result = db.viewServiceLocations(cursor, get_jwt_identity())
+    return render_template("servicelocations.html", table_content=result)
 
 @app.route("/enroll-device", methods=["POST"])
 @jwt_required()
@@ -137,6 +141,15 @@ def enroll_device():
     # Enroll a new device
     db.enrollDevice(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
+
+# TODO - delete enrolled device
+
+@app.route("/view-enrolled-devices", methods=["POST"])
+@jwt_required()
+def view_enrolled_devices():
+    result = db.viewEnrolledDevices(cursor, get_jwt_identity())
+    return render_template("enrolleddevices.html", table_content=result)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -16,8 +16,6 @@ def insertCustomer(ctx, cursor, data):
         return False
     
     try:
-        ctx.start_transaction()
-
         # if a registered customer already exists under this name, registration fails
         query = ("SELECT * FROM Customers WHERE name = %s")
         cursor.execute(query, (username,))
@@ -71,8 +69,6 @@ def insertNewServiceLocation(ctx, cursor, data, user):
     zipcode = html.escape(data['zipcode'])
 
     try:
-        ctx.start_transaction()
-
         # insert into DB and commit
         q1 = ("INSERT INTO ServiceLocations (addr, unit, square_ft, bedrooms, occupants, date_owned, zipcode) VALUES (%s, %s, %s, %s, %s, %s, %s)")
         cursor.execute(q1, (addr, unit, square_ft, num_bedrooms, num_occupants, date_owned.strftime('%Y-%m-%d'), zipcode))
@@ -97,51 +93,68 @@ def insertNewServiceLocation(ctx, cursor, data, user):
     except Exception as e:
         ctx.rollback()
         raise e
-    
 
-def insertNewSmartDevice(ctx, cursor, data):
-    # Fetch all data submitted
-    dv_type = data["types"]
-    model = data["models"]
+def removeServiceLocation(ctx, cursor, data, user):
+    # Fetch all the data submitted
+    addr = html.escape(data['addr'])
+    unit = html.escape(data['unit'])
 
-    # Get the model ID for the submitted model
-    query = ("SELECT mid FROM Models WHERE name = %s")
-    cursor.execute(query, (model,))
-    result = cursor.fetchone()
-    
+    # Find the service location the user would like to delete
+    q1 = ("SELECT sid FROM Customers NATURAL JOIN OwnedLocations NATURAL JOIN ServiceLocations WHERE name = %s AND addr = %s and unit = %s")
+    cursor.execute(q1, (user, addr, unit))
+    r1 = cursor.fetchone()
+    sid = r1[0]
+
     try:
-        ctx.start_transaction()
-
-        # insert into DB and commit
-        query = ("INSERT INTO Devices (type, mid) VALUES (%s, %s)")
-        cursor.execute(query, (dv_type, result[0]))
+        # Delete the service location
+        q2 = ("DELETE FROM ServiceLocations WHERE sid = %s")
+        cursor.execute(q2, (sid,))
 
         ctx.commit()
     except Exception as e:
         ctx.rollback()
         raise e
 
+def viewServiceLocations(cursor, user):
+    # Find all service locations for this user
+    query = ("SELECT addr, unit, square_ft, bedrooms, occupants, date_owned, zipcode FROM Customers NATURAL JOIN OwnedLocations NATURAL JOIN ServiceLocations WHERE name = %s")
+    cursor.execute(query, (user,))
+    rows = cursor.fetchall()
+
+    result = []
+    for row in rows:
+        addr, unit, square_ft, bedrooms, occupants, date_owned, zipcode = row[0], row[1], row[2], row[3], row[4], row[5], row[6]
+        result.append({'Address': addr, 'Unit Number': unit, 'Size (square ft)': square_ft, 'Num. of Bedrooms': bedrooms, 'Num. of Occupants': occupants, \
+              'Date Owned': date_owned, 'Zip Code': zipcode})
+
+    return result
+
 def enrollDevice(ctx, cursor, data, user):
     # Fetch all data submitted
     dv_type = data["types"]
+    mtype = data["models"]
     addr = html.escape(data["addr"])
     unit = html.escape(data["unit"])
 
+    # Find the model ID for this type of model
+    q0 = ("SELECT mid FROM Models WHERE name = %s")
+    cursor.execute(q0, (mtype,))
+    r0 = cursor.fetchone()
+    mid = r0[0]
+
     # Find the device ID for this type of device
-    q1 = ("SELECT did FROM Devices WHERE type = %s")
-    cursor.execute(q1, (dv_type,))
+    q1 = ("SELECT did FROM Devices WHERE type = %s AND mid = %s")
+    cursor.execute(q1, (dv_type, mid))
     r1 = cursor.fetchone()
     did = r1[0]
 
     # Find the service location and user for which this (addr, unit) belongs to
-    q2 = ("SELECT sid, cid FROM Customers NATURAL JOIN ServiceLocations WHERE name = %s AND addr = %s AND unit = %s")
+    q2 = ("SELECT sid, cid FROM Customers NATURAL JOIN OwnedLocations NATURAL JOIN ServiceLocations WHERE name = %s AND addr = %s AND unit = %s")
     cursor.execute(q2, (user, addr, unit))
     r2 = cursor.fetchone()
     sid, cid = r2[0], r2[1]
 
     try:
-        ctx.start_transaction()
-
         # Insert the newly enrolled device into the DB
         q3 = ("INSERT INTO EnrolledDevices (did, sid, cid) VALUES (%s, %s, %s)")
         cursor.execute(q3, (did, sid, cid))
@@ -150,6 +163,21 @@ def enrollDevice(ctx, cursor, data, user):
     except Exception as e:
         ctx.rollback()
         raise e
+    
+def viewEnrolledDevices(cursor, user):
+    # Find all enrolled devices for this user
+    query = ("SELECT addr, unit, type FROM Customers NATURAL JOIN EnrolledDevices NATURAL JOIN OwnedLocations NATURAL JOIN ServiceLocations NATURAL JOIN Devices\
+             WHERE name = %s")
+    cursor.execute(query, (user,))
+    rows = cursor.fetchall()
+
+    result = []
+    for row in rows:
+        addr, unit, dv_type = row[0], row[1], row[2]
+        result.append({'Address': addr, 'Unit Number': unit, 'Device Type': dv_type})
+    
+    return result
+
 
 def fetchEnergyConsumptionByTime(cursor, data, user):
     # Fetch start/finish dates for user selected time period
