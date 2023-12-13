@@ -10,7 +10,7 @@
         <style>
           body {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin: 20px;
             font-family: Arial, sans-serif;
@@ -51,25 +51,6 @@
             <button type="submit">Submit</button>
         </form>
 
-        
-        <form action="/new-smart-device" name="new_smart_device" method="post">
-            <h1>Register new smart device</h1>
-            <label>Smart Device</label>
-            <select name="types">
-              <option value="AC System">AC System</option>
-              <option value="Lights">Lights</option>
-              <option value="Refrigerator">Refrigerator</option>
-              <option value="Dryer">Dryer</option>
-            </select>
-            <select name="models">
-                <option value="GE Cafe 400">GE Cafe 400 (Refrigerator)</option>
-                <option value="Samsung QB800">Samsung QB800 (Dryer)</option>
-                <option value="LG Interior Lights XZ200">LG Interior Lights XZ200 (Lights)</option>
-                <option value="Samsung Coolair 700">Samsung Coolair 700 (AC System)</option>
-            </select>
-            <button type="submit">Submit</button>
-        </form>
-
         <form action="/enroll-device" name="enroll_device" method="post">
             <h1>Enroll Device</h1>
 
@@ -85,7 +66,36 @@
               <option value="Dryer">Dryer</option>
             </select>
 
+            <select name="models">
+              <option value="Samsung Coolair 700">Samsung Coolair 700 (AC System)</option>
+              <option value="LG Interior Lights XZ200">LG Interior Lights XZ200 (Lights)</option>
+              <option value="GE Cafe 400">GE Cafe 400 (Refrigerator)</option>
+              <option value="Samsung QB800">Samsung QB800 (Dryer)</option>
+          </select>
+
             <button type="submit">Enroll</button>
+        </form>
+
+        <form action="/view-service-locations" name="view_service_locations" method="post">
+          <h1>View Your Service Locations</h1>
+
+          <button type="submit">View</button>
+        </form>
+
+        <form action="/view-enrolled-devices" name="view_enrolled_devices" method="post">
+          <h1>View Your Enrolled Devices</h1>
+
+          <button type="submit">View</button>
+        </form>
+
+        <form action="/remove-service-location" name="remove_service_location" method="post">
+          <h1>Remove Service Location</h1>
+
+          <label>Service Location</label>
+          <input type="text" placeholder="Enter address" name="addr">
+          <input type="text" placeholder="Enter unit" name="unit">
+
+          <button type="submit">Remove</button>
         </form>
 
 
