@@ -19,6 +19,10 @@ app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 # app.config['JWT_CSRF_IN_COOKIES'] = True
 
 # TODO - What's the point of using VIEWS in sql if the view is dependent on the customer anyways? Wouldn't selecting be easier?
+# TODO - delete enrolled device
+
+# NOTE - When inserting new data, Flask doesn't seem to receive the changes until actual code is changed (which results in the Flask app refreshing itself)
+# So, when demo'ing if needed, just make sure to edit the code (add a space or something) to refresh the app.
 
 jwt = JWTManager(app)
 
@@ -45,6 +49,7 @@ def view():
             # With the fetched data, we'll create a pie chart to represent the user data.
             # Return the HTML template with the pie chart inserted into it.
             data = db.fetchEnergyConsumptionByDevice(cursor, name)
+
             df = pd.DataFrame(data, columns=['Device Type', 'Percentage'])
             fig = px.pie(df, names='Device Type', values='Percentage', title='Energy Consumption by device type as percentage of total energy consumption')
             plot_content = fig.to_html(full_html=False)
@@ -141,8 +146,6 @@ def enroll_device():
     # Enroll a new device
     db.enrollDevice(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
-
-# TODO - delete enrolled device
 
 @app.route("/view-enrolled-devices", methods=["POST"])
 @jwt_required()
