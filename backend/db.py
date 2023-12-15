@@ -179,7 +179,7 @@ def removeEnrolledDevice(ctx, cursor, data, user):
     cid = row[0]
 
     # Find sid for the enrolled device
-    query = ("SELECT sid FROM ServiceLocations NATURAL JOIN OwnedLocations WHERE addr = %s AND zipcode = %s")
+    query = ("SELECT sid FROM ServiceLocations NATURAL JOIN OwnedLocations WHERE addr = %s AND unit = %s")
     cursor.execute(query, (addr, unit))
     row = cursor.fetchone()
     sid = row[0]
