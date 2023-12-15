@@ -38,15 +38,15 @@ def view():
             # Return the HTML template with the plot inserted into it.
             x, y = db.fetchEnergyConsumptionByTime(cursor, request.form, name)
             df = pd.DataFrame({'Date': x, 'Energy Consumption': y})
+            df['Energy Consumption'] = df['Energy Consumption'].astype(float)
             fig = px.bar(df, x='Date', y='Energy Consumption', orientation='v', title='Energy Consumption by date')
-            fig.update_yaxes(range=[0, 100])
+            fig.update_yaxes(range=[0, df['Energy Consumption'].max() * 1.1])
             plot_content = fig.to_html(full_html=False)
             return render_template("view.html", plot_content=plot_content)
         elif form_name == 'energy_consumption_device':
             # With the fetched data, we'll create a pie chart to represent the user data.
             # Return the HTML template with the pie chart inserted into it.
             data = db.fetchEnergyConsumptionByDevice(cursor, name)
-
             df = pd.DataFrame(data, columns=['Device Type', 'Percentage'])
             fig = px.pie(df, names='Device Type', values='Percentage', title='Energy Consumption by device type as percentage of total energy consumption')
             plot_content = fig.to_html(full_html=False)
@@ -62,8 +62,9 @@ def view():
                 line['Zip Code'] = z
                 df_list.append(line)
             df = pd.concat(df_list, ignore_index=True)
+            df['Energy Price'] = df['Energy Price'].astype(float)
             fig = px.line(df, x='Date', y='Energy Price', color='Zip Code', title='Energy Pricing by zip code over time', markers=True)
-            fig.update_yaxes(range=[0, 100])
+            fig.update_yaxes(range=[0, df['Energy Price'].max() * 1.1])
             plot_content = fig.to_html(full_html=False)
             return render_template("view.html", plot_content=plot_content)
         elif form_name == 'energy_consumption_location':
@@ -71,8 +72,9 @@ def view():
             # Return the HTML template with the bar graph inserted into it.
             x, y = db.fetchEnergyConsumptionByServiceLocation(cursor, name)
             df = pd.DataFrame({'Service Location': x, 'Energy Consumption': y})
+            df['Energy Consumption'] = df['Energy Consumption'].astype(float)
             fig = px.bar(df, x='Service Location', y='Energy Consumption', orientation='v', title='Energy Consumption by service location')
-            fig.update_yaxes(range=[0, 100])
+            fig.update_yaxes(range=[0, df['Energy Consumption'].max() * 1.1])
             plot_content = fig.to_html(full_html=False)
             return render_template("view.html", plot_content=plot_content)
 
