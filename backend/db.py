@@ -68,6 +68,8 @@ def insertNewServiceLocation(ctx, cursor, data, user):
     date_owned = datetime.strptime(data['date_owned'], '%Y-%m-%d').date()
     zipcode = html.escape(data['zipcode'])
 
+    # Check if this service location already exists
+
     try:
         # insert into DB and commit
         q1 = ("INSERT INTO ServiceLocations (addr, unit, square_ft, bedrooms, occupants, date_owned, zipcode) VALUES (%s, %s, %s, %s, %s, %s, %s)")
@@ -159,6 +161,46 @@ def enrollDevice(ctx, cursor, data, user):
         q3 = ("INSERT INTO EnrolledDevices (did, sid, cid) VALUES (%s, %s, %s)")
         cursor.execute(q3, (did, sid, cid))
         
+        ctx.commit()
+    except Exception as e:
+        ctx.rollback()
+        raise e
+
+def removeEnrolledDevice(ctx, cursor, data, user):
+    dv_type = data["types"]
+    model = data["models"]
+    addr = html.escape(data["addr"])
+    unit = html.escape(data["unit"])
+
+    # Find cid for this customer
+    query = ("SELECT cid FROM Customers WHERE name = %s")
+    cursor.execute(query, (user,))
+    row = cursor.fetchone()
+    cid = row[0]
+
+    # Find sid for the enrolled device
+    query = ("SELECT sid FROM ServiceLocations NATURAL JOIN OwnedLocations WHERE addr = %s AND zipcode = %s")
+    cursor.execute(query, (addr, unit))
+    row = cursor.fetchone()
+    sid = row[0]
+
+    # Find did for the enrolled device
+    query = ("SELECT did FROM Devices NATURAL JOIN Models WHERE type = %s AND name = %s")
+    cursor.execute(query, (dv_type, model))
+    row = cursor.fetchone()
+    did = row[0]
+
+    # Find enrolled device to remove
+    query = ("SELECT rid FROM EnrolledDevices WHERE did = %s AND sid = %s AND cid = %s")
+    cursor.execute(query, (did, sid, cid))
+    row = cursor.fetchone()
+    rid = row[0]
+
+    try:
+        # Delete the enrolled device
+        query = ("DELETE FROM EnrolledDevices WHERE rid = %s")
+        cursor.execute(query, (rid,))
+
         ctx.commit()
     except Exception as e:
         ctx.rollback()

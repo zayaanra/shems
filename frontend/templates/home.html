@@ -71,7 +71,7 @@
               <option value="LG Interior Lights XZ200">LG Interior Lights XZ200 (Lights)</option>
               <option value="GE Cafe 400">GE Cafe 400 (Refrigerator)</option>
               <option value="Samsung QB800">Samsung QB800 (Dryer)</option>
-          </select>
+            </select>
 
             <button type="submit">Enroll</button>
         </form>
@@ -94,6 +94,31 @@
           <label>Service Location</label>
           <input type="text" placeholder="Enter address" name="addr">
           <input type="text" placeholder="Enter unit" name="unit">
+
+          <button type="submit">Remove</button>
+        </form>
+
+        <form action="/remove-enrolled-device" name="remove_enrolled_device" method="post">
+          <h1>Remove Enrolled Device</h1>
+
+          <label>Service Location</label>
+          <input type="text" placeholder="Enter address" name="addr">
+          <input type="text" placeholder="Enter unit" name="unit">
+
+          <label>Smart Device</label>
+          <select name="types">
+            <option value="AC System">AC System</option>
+            <option value="Lights">Lights</option>
+            <option value="Refrigerator">Refrigerator</option>
+            <option value="Dryer">Dryer</option>
+          </select>
+
+          <select name="models">
+            <option value="Samsung Coolair 700">Samsung Coolair 700 (AC System)</option>
+            <option value="LG Interior Lights XZ200">LG Interior Lights XZ200 (Lights)</option>
+            <option value="GE Cafe 400">GE Cafe 400 (Refrigerator)</option>
+            <option value="Samsung QB800">Samsung QB800 (Dryer)</option>
+          </select>
 
           <button type="submit">Remove</button>
         </form>

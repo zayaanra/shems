@@ -18,9 +18,6 @@ app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 # app.config['JWT_CSRF_CHECK_FORM'] = True
 # app.config['JWT_CSRF_IN_COOKIES'] = True
 
-# TODO - What's the point of using VIEWS in sql if the view is dependent on the customer anyways? Wouldn't selecting be easier?
-# TODO - delete enrolled device
-
 # NOTE - When inserting new data, Flask doesn't seem to receive the changes until actual code is changed (which results in the Flask app refreshing itself)
 # So, when demo'ing if needed, just make sure to edit the code (add a space or something) to refresh the app.
 
@@ -145,6 +142,12 @@ def view_service_locations():
 def enroll_device():
     # Enroll a new device
     db.enrollDevice(ctx, cursor, request.form, get_jwt_identity())
+    return redirect("/home", code=302)
+
+@app.route("/remove-enrolled-device", methods=["POST"])
+@jwt_required()
+def remove_enrolled_device():
+    db.removeEnrolledDevice(ctx, cursor, request.form, get_jwt_identity())
     return redirect("/home", code=302)
 
 @app.route("/view-enrolled-devices", methods=["POST"])
