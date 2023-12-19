@@ -12,11 +12,8 @@ app = Flask(__name__, template_folder='../frontend/templates')
 app.config['JWT_SECRET_KEY'] = 'secret'
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 
-# TODO - fix csrf token
-# NOTE - Unsafe CSRF.
+# NOTE - We only put this here to force Flask JWT to use the default protection of tokens
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
-# app.config['JWT_CSRF_CHECK_FORM'] = True
-# app.config['JWT_CSRF_IN_COOKIES'] = True
 
 # NOTE - When inserting new data, Flask doesn't seem to receive the changes until actual code is changed (which results in the Flask app refreshing itself)
 # So, when demo'ing if needed, just make sure to edit the code (add a space or something) to refresh the app.
